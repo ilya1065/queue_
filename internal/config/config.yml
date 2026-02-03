@@ -1,0 +1,2 @@
+db_url: file:./data/app.db?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)
+tg_key: tg_key

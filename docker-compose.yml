@@ -1,0 +1,30 @@
+services:
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: queue:latest
+    container_name: queue_migrate
+    restart: "no"
+    environment:
+      DB_URL: "file:./data/app.db?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)"
+      MIGRATIONS_DIR: "./db/migrations"
+    volumes:
+      - queue_data:/app/data
+      - ./db/migrations:/app/db/migrations:ro
+    entrypoint: ["/app/migrate"]
+
+  queue:
+    image: queue:latest
+    container_name: queue
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - queue_data:/app/data
+      - ./internal/config/config.yml:/app/internal/config/config.yml:ro
+      - ./db/migrations:/app/db/migrations:ro
+
+volumes:
+  queue_data:
