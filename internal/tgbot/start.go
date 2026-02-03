@@ -26,7 +26,7 @@ func StartBot(cfg *config.Config, srv *server.Server, inf *infra.Infra) {
 	ctl := NewController(srv, inf)
 	ctl.RegisterRoutes(b)
 	b.Handle("/hello", func(c telebot.Context) error {
-		return c.Send("Hello World")
+		return c.Send("Hello")
 	})
 	b.Start()
 }

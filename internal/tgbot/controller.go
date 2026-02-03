@@ -139,7 +139,6 @@ func (ctl *Controller) RegisterRoutes(b *tele.Bot) {
 		ctl.userWeekStart.Store(c.Sender().ID, weekStart(day)) //[c.Sender().ID] = weekStart(day)
 
 		items, err := ctl.srv.GetItemByTime(day)
-		fmt.Println(items, day, err)
 		if err != nil {
 			fmt.Println(err)
 			return c.Respond(&tele.CallbackResponse{Text: errorRetrievingSchedule})
@@ -176,7 +175,7 @@ func (ctl *Controller) RegisterRoutes(b *tele.Bot) {
 		}
 		i := 1
 		for _, it := range queue {
-			text += fmt.Sprintf("%d.  %s\n\n", i, it.Name)
+			text += fmt.Sprintf("%d.  %s\n", i, it.Name)
 			i++
 		}
 		return c.Edit(text, ctl.kb.LessonActions(int64(scheduleItemID)))
