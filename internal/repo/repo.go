@@ -20,4 +20,5 @@ type UserRepo interface {
 type RecordsRepo interface {
 	AddUserToItem(id int64, scheduleItemID int) error
 	GetUserByItemID(id int) ([]entity.User, error)
+	DeleteRecord(userID int64, scheduleID int) error
 }

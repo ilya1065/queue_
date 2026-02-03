@@ -96,9 +96,11 @@ func (k *Keyboards) LessonsMenu(items []entity.ScheduleItem) *tele.ReplyMarkup {
 func (k *Keyboards) LessonActions(scheduleItemID int64) *tele.ReplyMarkup {
 	m := &tele.ReplyMarkup{}
 	join := m.Data("✅ Записаться", "join", fmt.Sprintf("%d", scheduleItemID))
+	leave := m.Data("Покинуть Очередь", "leave", fmt.Sprintf("%d", scheduleItemID))
 	back := m.Data("⬅️ Назад", "back_lessons", "")
 	m.Inline(
 		m.Row(join),
+		m.Row(leave),
 		m.Row(back),
 	)
 	return m

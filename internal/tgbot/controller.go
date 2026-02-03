@@ -181,6 +181,38 @@ func (ctl *Controller) RegisterRoutes(b *tele.Bot) {
 		return c.Edit(text, ctl.kb.LessonActions(int64(scheduleItemID)))
 	})
 
+	b.Handle(&tele.InlineButton{Unique: "leave"}, func(c tele.Context) error {
+		id := c.Sender().ID
+		scheduleItemID, _ := strconv.Atoi(c.Data())
+		err := ctl.srv.Leave(id, scheduleItemID)
+		if err == entity.ErrAlreadyRegistered {
+			return c.Respond(&tele.CallbackResponse{Text: "Вы уже покинули очередь"})
+		}
+		if err != nil {
+			return c.Respond(&tele.CallbackResponse{Text: "Ошибка"})
+		}
+		var text string
+		item, err := ctl.srv.GetItemByID(scheduleItemID)
+		if err != nil {
+			c.Respond(&tele.CallbackResponse{Text: "не удалось получить пару"})
+		}
+		if item != nil {
+			desc := strings.ReplaceAll(item[0].Description, `\n`, "\n")
+			text += fmt.Sprintf("%s\n%s\n", item[0].Name, desc)
+		}
+		text += fmt.Sprintf("Очередь:\n")
+		queue, err := ctl.srv.GetUserByItemID(scheduleItemID)
+		if err != nil {
+			return c.Respond(&tele.CallbackResponse{Text: "ошибка при получении очереди"})
+		}
+		i := 1
+		for _, it := range queue {
+			text += fmt.Sprintf("%d.  %s\n", i, it.Name)
+			i++
+		}
+		return c.Edit(text, ctl.kb.LessonActions(int64(scheduleItemID)))
+	})
+
 	// join
 	b.Handle(&tele.InlineButton{Unique: "join"}, func(c tele.Context) error {
 		// scheduleItemID из Data

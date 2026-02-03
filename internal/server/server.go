@@ -18,6 +18,15 @@ func NewServer(store repo.Store) *Server {
 	}
 }
 
+func (s *Server) Leave(userID int64, scheduleID int) error {
+	err := s.store.Record().DeleteRecord(userID, scheduleID)
+	if err != nil {
+		slog.Warn(err.Error())
+		return err
+	}
+	return nil
+}
+
 func (s *Server) GetItemByTime(start time.Time) ([]entity.ScheduleItem, error) {
 	slog.Debug("сервис GetItemByTime")
 	end := start.AddDate(0, 0, 1)
