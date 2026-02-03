@@ -21,6 +21,8 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+    environment:
+      TG_KEY: ${TG_KEY}
     volumes:
       - queue_data:/app/data
       - ./internal/config/config.yml:/app/internal/config/config.yml:ro

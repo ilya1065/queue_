@@ -3,6 +3,7 @@ package tgbot
 import (
 	"log"
 	"log/slog"
+	"os"
 	"queue/internal/config"
 	"queue/internal/infra"
 	"queue/internal/server"
@@ -13,8 +14,12 @@ import (
 
 func StartBot(cfg *config.Config, srv *server.Server, inf *infra.Infra) {
 	slog.Info("Старт бота")
+	if os.Getenv("TG_KEY") == "" {
+		log.Fatal("TG_KEY is not set")
+	}
+
 	pref := telebot.Settings{
-		Token:  cfg.TGKey,
+		Token:  os.Getenv("TG_KEY"),
 		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
 	}
 
