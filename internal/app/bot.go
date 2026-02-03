@@ -26,7 +26,7 @@ func Start(cfg *config.Config) error {
 	}
 	srv := server.NewServer(store)
 
-	tgbot.StartBot(cfg, srv, inf)
+	tgbot.StartBot(srv, inf)
 
 	defer db.Close()
 	return nil

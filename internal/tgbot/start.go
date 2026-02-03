@@ -4,7 +4,6 @@ import (
 	"log"
 	"log/slog"
 	"os"
-	"queue/internal/config"
 	"queue/internal/infra"
 	"queue/internal/server"
 	"time"
@@ -12,7 +11,7 @@ import (
 	"gopkg.in/telebot.v4"
 )
 
-func StartBot(cfg *config.Config, srv *server.Server, inf *infra.Infra) {
+func StartBot(srv *server.Server, inf *infra.Infra) {
 	slog.Info("Старт бота")
 	if os.Getenv("TG_KEY") == "" {
 		log.Fatal("TG_KEY is not set")
