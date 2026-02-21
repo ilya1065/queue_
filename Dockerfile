@@ -10,7 +10,6 @@ RUN go mod download
 COPY . .
 
 ENV CGO_ENABLED=0
-
 RUN go build -trimpath -ldflags="-s -w" -o /out/app ./cmd
 RUN go build -trimpath -ldflags="-s -w" -o /out/migrate ./cmd/migrate
 

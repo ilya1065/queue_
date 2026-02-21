@@ -23,6 +23,8 @@ type Response struct {
 	} `json:"pageProps"`
 }
 
+// todo дропать базу и загружать занова
+// !
 func ICSURL(url string) ([]entity.ScheduleItem, error) {
 	slog.Info("Запрос к API и парсинг расписания")
 	resp, err := http.Get(url)

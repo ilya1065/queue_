@@ -29,8 +29,6 @@ func StartBot(srv *server.Server, inf *infra.Infra) {
 
 	ctl := NewController(srv, inf)
 	ctl.RegisterRoutes(b)
-	b.Handle("/hello", func(c telebot.Context) error {
-		return c.Send("Hello")
-	})
+	slog.Info("Бот готов, запускаю polling")
 	b.Start()
 }

@@ -53,6 +53,8 @@ func (repo RecordRepo) AddUserToItem(id int64, scheduleItemID int) error {
 	return nil
 }
 
+// TODO: отбирать по времени а не по id сравниват время созлания и время пары если лежит в диапоазоне то берем
+// !
 func (repo RecordRepo) GetUserByItemID(id int) ([]entity.User, error) {
 	slog.Debug("работа с db RecordRepo.GetUserByItemID ")
 	var users []entity.User

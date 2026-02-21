@@ -9,6 +9,7 @@ services:
     environment:
       DB_URL: "file:./data/app.db?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)"
       MIGRATIONS_DIR: "./db/migrations"
+      TZ: "Europe/Moscow"
     volumes:
       - queue_data:/app/data
       - ./db/migrations:/app/db/migrations:ro
@@ -23,6 +24,7 @@ services:
         condition: service_completed_successfully
     environment:
       TG_KEY: ${TG_KEY}
+      TZ: "Europe/Moscow"
     volumes:
       - queue_data:/app/data
       - ./internal/config/config.yml:/app/internal/config/config.yml:ro

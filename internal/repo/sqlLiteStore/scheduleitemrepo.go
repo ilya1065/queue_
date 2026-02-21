@@ -31,10 +31,12 @@ func (repo *ScheduleItemRepo) GetItemByID(id int) ([]entity.ScheduleItem, error)
 func (repo *ScheduleItemRepo) GetItemByTime(start, end time.Time) ([]entity.ScheduleItem, error) {
 	slog.Debug("запрос в db GetItemByTime")
 	var items []entity.ScheduleItem
+	_ = end
+	day := start.Format("2006-01-02")
 	err := repo.db.Select(&items, `select id, name,description,start_date,end_date
 												from schedule_items
-												where start_date >= ? and end_date <= ?
-												order by start_date`, start, end)
+												where substr(start_date,1,10) = ?
+												order by start_date`, day)
 	if err != nil {
 		return nil, err
 	}
@@ -44,14 +46,15 @@ func (repo *ScheduleItemRepo) GetItemByTime(start, end time.Time) ([]entity.Sche
 func (repo *ScheduleItemRepo) GetDay() ([]entity.ScheduleItem, error) {
 	slog.Debug("запрос в DB GetDay")
 	var items []entity.ScheduleItem
-	start, end, err := startEndOfToday()
+	start, _, err := startEndOfToday()
 	if err != nil {
 		return nil, err
 	}
+	day := start.Format("2006-01-02")
 	err = repo.db.Select(&items, `select id,name,description,start_date,end_date
 												from schedule_items
-												where start_date >= ? and  end_date <= ?
-												order by start_date`, start, end)
+												where substr(start_date,1,10) = ?
+												order by start_date`, day)
 	if err != nil {
 		return nil, err
 	}
