@@ -37,6 +37,7 @@ func (k *Keyboards) MainMenu(id int64) *tele.ReplyMarkup {
 }
 
 func (k *Keyboards) AdminMenu() *tele.ReplyMarkup {
+	slog.Debug(fmt.Sprintf("AdminMenu"))
 	m := &tele.ReplyMarkup{}
 	reload := m.Data("Обновить расписание", "reload", "")
 	back := m.Data("назад", "back", "")
@@ -45,6 +46,7 @@ func (k *Keyboards) AdminMenu() *tele.ReplyMarkup {
 }
 
 func (k *Keyboards) DaysMenu(weekStart time.Time) *tele.ReplyMarkup {
+	slog.Debug("DaysMenu")
 	m := &tele.ReplyMarkup{}
 	labels := []string{"ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"}
 
@@ -72,6 +74,7 @@ func (k *Keyboards) DaysMenu(weekStart time.Time) *tele.ReplyMarkup {
 }
 
 func (k *Keyboards) LessonsMenu(items []entity.ScheduleItem) *tele.ReplyMarkup {
+	slog.Debug(fmt.Sprintf("LessonsMenu %d", len(items)))
 	m := &tele.ReplyMarkup{}
 	var rows []tele.Row
 	var row []tele.Btn
@@ -94,6 +97,7 @@ func (k *Keyboards) LessonsMenu(items []entity.ScheduleItem) *tele.ReplyMarkup {
 }
 
 func (k *Keyboards) LessonActions(scheduleItemID int64) *tele.ReplyMarkup {
+	slog.Debug(fmt.Sprintf("LessonActions %d", scheduleItemID))
 	m := &tele.ReplyMarkup{}
 	join := m.Data("✅ Записаться", "join", fmt.Sprintf("%d", scheduleItemID))
 	leave := m.Data("Покинуть Очередь", "leave", fmt.Sprintf("%d", scheduleItemID))
