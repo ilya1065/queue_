@@ -36,6 +36,7 @@ func (repo *ScheduleItemRepo) GetItemByTime(start, end time.Time) ([]entity.Sche
 	err := repo.db.Select(&items, `select id, name,description,start_date,end_date
 												from schedule_items
 												where substr(start_date,1,10) = ?
+												  and substr(start_date,12,8) >= '01:00:00'
 												order by start_date`, day)
 	if err != nil {
 		return nil, err
