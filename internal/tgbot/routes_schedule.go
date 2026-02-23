@@ -10,6 +10,7 @@ import (
 	tele "gopkg.in/telebot.v4"
 )
 
+// registerScheduleHandlers регистрация роутов расписания.
 func (ctl *Controller) registerScheduleHandlers(b *tele.Bot) {
 	ctl.registerRecordHandler(b)
 	ctl.registerWeekCurrentHandler(b)
@@ -21,6 +22,7 @@ func (ctl *Controller) registerScheduleHandlers(b *tele.Bot) {
 	ctl.registerBackLessonsHandler(b)
 }
 
+// registerRecordHandler вход в сценарий записи на пару
 func (ctl *Controller) registerRecordHandler(b *tele.Bot) {
 	b.Handle(&tele.InlineButton{Unique: "record"}, func(c tele.Context) error {
 		_ = c.Respond()
@@ -29,6 +31,7 @@ func (ctl *Controller) registerRecordHandler(b *tele.Bot) {
 	})
 }
 
+// registerWeekCurrentHandler выбор текущей недели
 func (ctl *Controller) registerWeekCurrentHandler(b *tele.Bot) {
 	b.Handle(&tele.InlineButton{Unique: "week_current"}, func(c tele.Context) error {
 		_ = c.Respond()
@@ -38,6 +41,7 @@ func (ctl *Controller) registerWeekCurrentHandler(b *tele.Bot) {
 	})
 }
 
+// registerWeekNextHandler выбор следующей недели
 func (ctl *Controller) registerWeekNextHandler(b *tele.Bot) {
 	b.Handle(&tele.InlineButton{Unique: "week_next"}, func(c tele.Context) error {
 		_ = c.Respond()
@@ -47,6 +51,7 @@ func (ctl *Controller) registerWeekNextHandler(b *tele.Bot) {
 	})
 }
 
+// registerDayHandler выбор дня и загрузка пар на выбранную дату
 func (ctl *Controller) registerDayHandler(b *tele.Bot) {
 	b.Handle(&tele.InlineButton{Unique: "day"}, func(c tele.Context) error {
 		_ = c.Respond()
@@ -74,7 +79,7 @@ func (ctl *Controller) registerDayHandler(b *tele.Bot) {
 
 		items, err := ctl.srv.GetItemByTime(day)
 		for _, it := range items {
-			slog.Debug("item", "id", it.Id, "name", it.Name)
+			slog.Debug("item", "id", it.Id, "name", it.Name, "time", it.StartDate)
 		}
 		if err != nil {
 			fmt.Println(err)
@@ -91,6 +96,7 @@ func (ctl *Controller) registerDayHandler(b *tele.Bot) {
 	})
 }
 
+// registerLessonHandler выбор пары и показ текущей очереди
 func (ctl *Controller) registerLessonHandler(b *tele.Bot) {
 	b.Handle(&tele.InlineButton{Unique: "lesson"}, func(c tele.Context) error {
 		_ = c.Respond()
@@ -105,8 +111,8 @@ func (ctl *Controller) registerLessonHandler(b *tele.Bot) {
 			c.Respond(&tele.CallbackResponse{Text: "не удалось получить пару"})
 		}
 		if item != nil {
-			desc := strings.ReplaceAll(item[0].Description, `\n`, "\n")
-			text += fmt.Sprintf("%s\n%s\n", item[0].Name, desc)
+			desc := strings.ReplaceAll(item.Description, `\n`, "\n")
+			text += fmt.Sprintf("%s\n%s\n", item.Name, desc)
 		}
 		text += fmt.Sprintf("Очередь:\n")
 		queue, err := ctl.srv.GetUserByItemID(scheduleItemID)
@@ -122,6 +128,7 @@ func (ctl *Controller) registerLessonHandler(b *tele.Bot) {
 	})
 }
 
+// registerBackWeekHandler возврат к выбору недели
 func (ctl *Controller) registerBackWeekHandler(b *tele.Bot) {
 	b.Handle(&tele.InlineButton{Unique: "back_week"}, func(c tele.Context) error {
 		_ = c.Respond()
@@ -130,6 +137,7 @@ func (ctl *Controller) registerBackWeekHandler(b *tele.Bot) {
 	})
 }
 
+// registerBackDaysHandler возврат к выбору дня
 func (ctl *Controller) registerBackDaysHandler(b *tele.Bot) {
 	b.Handle(&tele.InlineButton{Unique: "back_days"}, func(c tele.Context) error {
 		_ = c.Respond()
@@ -145,6 +153,7 @@ func (ctl *Controller) registerBackDaysHandler(b *tele.Bot) {
 	})
 }
 
+// registerBackLessonsHandler возврат к списку пар выбранного дня
 func (ctl *Controller) registerBackLessonsHandler(b *tele.Bot) {
 	b.Handle(&tele.InlineButton{Unique: "back_lessons"}, func(c tele.Context) error {
 		_ = c.Respond()

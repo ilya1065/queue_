@@ -1,6 +1,7 @@
 package tgbot
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"queue/internal/entity"
@@ -21,7 +22,7 @@ func (ctl *Controller) registerLeaveHandler(b *tele.Bot) {
 		id := c.Sender().ID
 		scheduleItemID, _ := strconv.Atoi(c.Data())
 		err := ctl.srv.Leave(id, scheduleItemID)
-		if err == entity.ErrAlreadyRegistered {
+		if errors.Is(err, entity.ErrAlreadyRegistered) {
 			return c.Respond(&tele.CallbackResponse{Text: "Вы уже покинули очередь"})
 		}
 		if err != nil {
@@ -33,8 +34,8 @@ func (ctl *Controller) registerLeaveHandler(b *tele.Bot) {
 			c.Respond(&tele.CallbackResponse{Text: "не удалось получить пару"})
 		}
 		if item != nil {
-			desc := strings.ReplaceAll(item[0].Description, `\n`, "\n")
-			text += fmt.Sprintf("%s\n%s\n", item[0].Name, desc)
+			desc := strings.ReplaceAll(item.Description, `\n`, "\n")
+			text += fmt.Sprintf("%s\n%s\n", item.Name, desc)
 		}
 		text += fmt.Sprintf("Очередь:\n")
 		queue, err := ctl.srv.GetUserByItemID(scheduleItemID)
@@ -61,13 +62,13 @@ func (ctl *Controller) registerJoinHandler(b *tele.Bot) {
 			return c.Respond(&tele.CallbackResponse{Text: "Некорректный ID занятия"})
 		}
 		err = ctl.srv.AddUserToItem(userID, scheduleItemID)
-		if err == entity.ErrAlreadyRegistered {
+		if errors.Is(err, entity.ErrAlreadyRegistered) {
 			return c.Respond(&tele.CallbackResponse{Text: "пользователь уже записан"})
 		}
-		if err == entity.ErrUserNotFound {
+		if errors.Is(err, entity.ErrUserNotFound) {
 			return c.Respond(&tele.CallbackResponse{Text: "Сначала нажми /start и введи имя"})
 		}
-		if err == entity.ErrScheduleNotFound {
+		if errors.Is(err, entity.ErrScheduleNotFound) {
 			return c.Respond(&tele.CallbackResponse{Text: "Пара устарела, открой расписание заново"})
 		}
 		if err != nil {
@@ -81,8 +82,8 @@ func (ctl *Controller) registerJoinHandler(b *tele.Bot) {
 			c.Respond(&tele.CallbackResponse{Text: "не удалось получить пару"})
 		}
 		if item != nil {
-			desc := strings.ReplaceAll(item[0].Description, `\n`, "\n")
-			text += fmt.Sprintf("%s\n%s\n", item[0].Name, desc)
+			desc := strings.ReplaceAll(item.Description, `\n`, "\n")
+			text += fmt.Sprintf("%s\n%s\n", item.Name, desc)
 		}
 		text += fmt.Sprintf("Очередь:\n")
 		queue, err := ctl.srv.GetUserByItemID(scheduleItemID)

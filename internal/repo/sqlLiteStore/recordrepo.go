@@ -12,6 +12,7 @@ type RecordRepo struct {
 	db *sqlx.DB
 }
 
+// DeleteRecord удаление записи
 func (repo *RecordRepo) DeleteRecord(userID int64, scheduleID int) error {
 	slog.Debug(`RecordRepo.DeleteRecord()`)
 
@@ -21,6 +22,7 @@ func (repo *RecordRepo) DeleteRecord(userID int64, scheduleID int) error {
 		slog.Error(`RecordRepo.DeleteRecord()`, err)
 		return err
 	}
+	// проверка, что что-то удалилось
 	n, err := res.RowsAffected()
 	if err != nil {
 		return err
@@ -32,6 +34,8 @@ func (repo *RecordRepo) DeleteRecord(userID int64, scheduleID int) error {
 	return nil
 }
 
+// AddUserToItem добавление новой записи
+// если запись уже есть сообщаем об этом
 func (repo RecordRepo) AddUserToItem(id int64, scheduleItemID int) error {
 	slog.Debug("работа с db RecordRepo.AddUserToItem")
 	timeNow := time.Now()
@@ -46,6 +50,7 @@ func (repo RecordRepo) AddUserToItem(id int64, scheduleItemID int) error {
 	if err != nil {
 		return err
 	}
+	// если ничего не было вставлено и не было ошибки, то сообщаем что такая запись уже есть
 	if n == 0 {
 		return entity.ErrAlreadyRegistered
 	}
@@ -53,8 +58,7 @@ func (repo RecordRepo) AddUserToItem(id int64, scheduleItemID int) error {
 	return nil
 }
 
-// TODO: отбирать по времени а не по id сравниват время созлания и время пары если лежит в диапоазоне то берем
-// !
+// GetUserByItemID возращаем пользователей которые записаны на пару по id
 func (repo RecordRepo) GetUserByItemID(id int) ([]entity.User, error) {
 	slog.Debug("работа с db RecordRepo.GetUserByItemID ")
 	var users []entity.User

@@ -1,2 +1,3 @@
 db_url: file:./data/app.db?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)
 tg_key: tg_key
+scheduler_url: https://schedule-of.mirea.ru/_next/data/fR0NO9mu2NSCPRkXv6ZHl/index.json?date=2026-1-16&s=1_4783

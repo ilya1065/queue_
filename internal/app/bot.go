@@ -7,24 +7,31 @@ import (
 	"queue/internal/repo/sqlLiteStore"
 	"queue/internal/server"
 	"queue/internal/tgbot"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	_ "modernc.org/sqlite"
 )
 
+// Start сборка зависимостей и запуск приложения
 func Start(cfg *config.Config) error {
 	slog.Info("Старт сервиса")
 	db, err := newDB(cfg.DBURL)
 	if err != nil {
 		return err
 	}
-	store := sqlLiteStore.NewStore(db)
-	inf := infra.NewInfra(db)
-	err = inf.LoadDBScheduleItem()
+	store := sqlLiteStore.NewStore(db, cfg)
+	inf := infra.NewInfra(db, cfg)
+	start := time.Now().Add(-1 * 90 * 24 * time.Hour)
+	end := time.Now().Add(1 * 365 * 24 * time.Hour)
+	err = inf.LoadDBScheduleItem(start, end)
 	if err != nil {
 		slog.Warn(err.Error())
 	}
-	srv := server.NewServer(store)
+	if err != nil {
+		slog.Warn(err.Error())
+	}
+	srv := server.NewServer(store, cfg)
 
 	tgbot.StartBot(srv, inf)
 

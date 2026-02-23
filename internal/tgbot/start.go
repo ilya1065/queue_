@@ -11,6 +11,7 @@ import (
 	"gopkg.in/telebot.v4"
 )
 
+// StartBot запуск Telegram-бота и регистрация всех роутов
 func StartBot(srv *server.Server, inf *infra.Infra) {
 	slog.Info("Старт бота")
 	if os.Getenv("TG_KEY") == "" {

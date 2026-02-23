@@ -23,10 +23,9 @@ type Response struct {
 	} `json:"pageProps"`
 }
 
-// todo дропать базу и загружать занова
-// !
-func ICSURL(url string) ([]entity.ScheduleItem, error) {
+func ICSURL(start, end time.Time, url string) ([]entity.ScheduleItem, error) {
 	slog.Info("Запрос к API и парсинг расписания")
+	// запрос к api университета
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -40,10 +39,13 @@ func ICSURL(url string) ([]entity.ScheduleItem, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(body.PageProps.ScheduleLoadInfo) == 0 {
+		return nil, errors.New("ошибка получения расписания")
+	}
 	r := strings.NewReader(body.PageProps.ScheduleLoadInfo[0].ICalContent)
 	c := gocal.NewParser(r)
-	start := time.Now().AddDate(-1, 0, 0)
 	c.Start = &start
+	c.End = &end
 	err = c.Parse()
 	if err != nil {
 		return nil, err

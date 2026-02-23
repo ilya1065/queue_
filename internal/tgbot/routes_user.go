@@ -7,6 +7,7 @@ import (
 	tele "gopkg.in/telebot.v4"
 )
 
+// registerUserHandlers регистрация пользовательских роутов
 func (ctl *Controller) registerUserHandlers(b *tele.Bot) {
 	ctl.registerStartHandler(b)
 	ctl.registerNameHandler(b)
@@ -14,6 +15,7 @@ func (ctl *Controller) registerUserHandlers(b *tele.Bot) {
 	ctl.registerBackHandler(b)
 }
 
+// registerNameHandler обработчик кнопки смены имени
 func (ctl *Controller) registerNameHandler(b *tele.Bot) {
 	b.Handle(&tele.InlineButton{Unique: "name"}, func(c tele.Context) error {
 		_ = c.Respond()
@@ -23,6 +25,7 @@ func (ctl *Controller) registerNameHandler(b *tele.Bot) {
 	})
 }
 
+// registerStartHandler обработчик команды /start
 func (ctl *Controller) registerStartHandler(b *tele.Bot) {
 	b.Handle("/start", func(c tele.Context) error {
 		slog.Debug("кнопка start")
@@ -39,6 +42,7 @@ func (ctl *Controller) registerStartHandler(b *tele.Bot) {
 	})
 }
 
+// registerTextHandler обработчик текстового ввода имени
 func (ctl *Controller) registerTextHandler(b *tele.Bot) {
 	b.Handle(tele.OnText, func(c tele.Context) error {
 		slog.Debug("принимаем текст Имени")
@@ -63,6 +67,7 @@ func (ctl *Controller) registerTextHandler(b *tele.Bot) {
 	})
 }
 
+// registerBackHandler обработчик возврата в главное меню
 func (ctl *Controller) registerBackHandler(b *tele.Bot) {
 	b.Handle(&tele.InlineButton{Unique: "back"}, func(c tele.Context) error {
 		_ = c.Respond()

@@ -6,9 +6,10 @@ import (
 )
 
 type ScheduleRepo interface {
-	GetDay() ([]entity.ScheduleItem, error)
+	//GetDay() ([]entity.ScheduleItem, error)
 	GetItemByTime(start, end time.Time) ([]entity.ScheduleItem, error)
-	GetItemByID(id int) ([]entity.ScheduleItem, error)
+	GetItemByID(id int) (*entity.ScheduleItem, error)
+	UpdateScheduleForTime(items []entity.ScheduleItem, start time.Time) error
 }
 
 type UserRepo interface {

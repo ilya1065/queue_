@@ -3,6 +3,7 @@ package infra
 import (
 	"context"
 	"log/slog"
+	"queue/internal/config"
 	"queue/internal/parser"
 	"time"
 
@@ -10,19 +11,21 @@ import (
 )
 
 type Infra struct {
-	db *sqlx.DB
+	db  *sqlx.DB
+	cfg *config.Config
 }
 
-func NewInfra(db *sqlx.DB) *Infra {
+func NewInfra(db *sqlx.DB, config *config.Config) *Infra {
 	return &Infra{
-		db: db,
+		db:  db,
+		cfg: config,
 	}
 }
 
-func (inf *Infra) LoadDBScheduleItem() error {
+func (inf *Infra) LoadDBScheduleItem(start, end time.Time) error {
 	slog.Info("загрузка расписания в db")
-	url := "https://schedule-of.mirea.ru/_next/data/fR0NO9mu2NSCPRkXv6ZHl/index.json?date=2026-1-16&s=1_4783"
-	ev, err := parser.ICSURL(url)
+	url := inf.cfg.SchedulerURL
+	ev, err := parser.ICSURL(start, end, url)
 	if err != nil {
 		return err
 	}
@@ -32,7 +35,8 @@ func (inf *Infra) LoadDBScheduleItem() error {
 		return err
 	}
 	defer tx.Rollback()
-	//compareItem(tx)
+	//compareItem(tx)\
+	// подготовка запроса
 	stmt, err := tx.PrepareContext(ctx, `INSERT INTO schedule_items
     											(name, description,start_date,end_date,external_id)
 												values(?,?,?,?,?)
@@ -48,6 +52,7 @@ func (inf *Infra) LoadDBScheduleItem() error {
 	}
 	defer stmt.Close()
 	for _, e := range ev {
+		// реализация подготовленного запроса
 		_, err = stmt.ExecContext(ctx, e.Name, e.Description, e.StartDate, e.EndDate, e.ExternalID)
 		if err != nil {
 			return err
@@ -56,7 +61,7 @@ func (inf *Infra) LoadDBScheduleItem() error {
 	return tx.Commit()
 }
 
-// Есть пара в это время 1
+/*// Есть пара в это время 1
 // нет пары в это время 0
 func compareItem(tx *sqlx.Tx, start, end *time.Time) (bool, error) {
 	var exists bool
@@ -66,3 +71,4 @@ func compareItem(tx *sqlx.Tx, start, end *time.Time) (bool, error) {
 	}
 	return exists, nil
 }
+*/

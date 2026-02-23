@@ -11,8 +11,10 @@ import (
 
 type Keyboards struct{}
 
+// NewKeyboards создание билдера inline-клавиатур
 func NewKeyboards() *Keyboards { return &Keyboards{} }
 
+// WeekMenu клавиатура выбора недели
 func (k *Keyboards) WeekMenu() *tele.ReplyMarkup {
 	m := &tele.ReplyMarkup{}
 	btnCur := m.Data("Текущая неделя", "week_current", "")
@@ -22,6 +24,7 @@ func (k *Keyboards) WeekMenu() *tele.ReplyMarkup {
 	return m
 }
 
+// MainMenu главное меню пользователя
 func (k *Keyboards) MainMenu(id int64) *tele.ReplyMarkup {
 	m := &tele.ReplyMarkup{}
 	slog.Debug(fmt.Sprintf("MainMenu %d", id))
@@ -36,6 +39,7 @@ func (k *Keyboards) MainMenu(id int64) *tele.ReplyMarkup {
 	return m
 }
 
+// AdminMenu меню администратора
 func (k *Keyboards) AdminMenu() *tele.ReplyMarkup {
 	slog.Debug(fmt.Sprintf("AdminMenu"))
 	m := &tele.ReplyMarkup{}
@@ -45,6 +49,7 @@ func (k *Keyboards) AdminMenu() *tele.ReplyMarkup {
 	return m
 }
 
+// DaysMenu клавиатура выбора дня в рамках недели
 func (k *Keyboards) DaysMenu(weekStart time.Time) *tele.ReplyMarkup {
 	slog.Debug("DaysMenu")
 	m := &tele.ReplyMarkup{}
@@ -73,6 +78,7 @@ func (k *Keyboards) DaysMenu(weekStart time.Time) *tele.ReplyMarkup {
 	return m
 }
 
+// LessonsMenu список пар выбранного дня
 func (k *Keyboards) LessonsMenu(items []entity.ScheduleItem) *tele.ReplyMarkup {
 	slog.Debug(fmt.Sprintf("LessonsMenu %d", len(items)))
 	m := &tele.ReplyMarkup{}
@@ -96,6 +102,7 @@ func (k *Keyboards) LessonsMenu(items []entity.ScheduleItem) *tele.ReplyMarkup {
 	return m
 }
 
+// LessonActions действия для выбранной пары
 func (k *Keyboards) LessonActions(scheduleItemID int64) *tele.ReplyMarkup {
 	slog.Debug(fmt.Sprintf("LessonActions %d", scheduleItemID))
 	m := &tele.ReplyMarkup{}

@@ -2,6 +2,7 @@ package sqlLiteStore
 
 import (
 	"log/slog"
+	"queue/internal/config"
 	"queue/internal/repo"
 
 	"github.com/jmoiron/sqlx"
@@ -12,12 +13,14 @@ type Store struct {
 	userRepo         *UserRepo
 	scheduleItemRepo *ScheduleItemRepo
 	recordRepo       *RecordRepo
+	cfg              *config.Config
 }
 
-func NewStore(db *sqlx.DB) *Store {
+func NewStore(db *sqlx.DB, cfg *config.Config) *Store {
 	slog.Info("создание хранилища")
 	return &Store{
-		db: db,
+		db:  db,
+		cfg: cfg,
 	}
 }
 
@@ -37,7 +40,8 @@ func (s *Store) ScheduleItem() repo.ScheduleRepo {
 		return s.scheduleItemRepo
 	}
 	s.scheduleItemRepo = &ScheduleItemRepo{
-		db: s.db,
+		db:  s.db,
+		cfg: s.cfg,
 	}
 	return s.scheduleItemRepo
 }

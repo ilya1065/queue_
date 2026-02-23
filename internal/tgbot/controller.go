@@ -24,6 +24,7 @@ type Controller struct {
 	waitName      sync.Map
 }
 
+// NewController создание контроллера бота
 func NewController(srv *server.Server, inf *infra.Infra) *Controller {
 	return &Controller{
 		inf: inf,
@@ -34,17 +35,18 @@ func NewController(srv *server.Server, inf *infra.Infra) *Controller {
 	}
 }
 
+// weekStart начало недели для переданной даты (понедельник 00:00)
 func weekStart(d time.Time) time.Time {
 	slog.Debug("получение начала недели")
 	wd := int(d.Weekday())
 	if wd == 0 {
-		wd = 7 // Sunday -> 7
+		wd = 7 // Sunday - 7
 	}
 	base := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
 	return base.AddDate(0, 0, -(wd - 1))
 }
 
-// RegisterRoutes — вызывай из main после создания bot
+// RegisterRoutes — регистрация всех роутеров
 func (ctl *Controller) RegisterRoutes(b *tele.Bot) {
 	slog.Info("регистрация роутера")
 	ctl.registerUserHandlers(b)

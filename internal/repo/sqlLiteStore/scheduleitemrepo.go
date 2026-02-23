@@ -3,6 +3,7 @@ package sqlLiteStore
 import (
 	"fmt"
 	"log/slog"
+	"queue/internal/config"
 	"queue/internal/entity"
 	"time"
 
@@ -10,29 +11,34 @@ import (
 )
 
 type ScheduleItemRepo struct {
-	db *sqlx.DB
+	db  *sqlx.DB
+	cfg *config.Config
 }
 
 //func GetWeek(timeNow time.Time) []entity.ScheduleItem {}
 
-func (repo *ScheduleItemRepo) GetItemByID(id int) ([]entity.ScheduleItem, error) {
+// GetItemByID возвращает пару по id
+func (repo *ScheduleItemRepo) GetItemByID(id int) (*entity.ScheduleItem, error) {
 	slog.Debug(fmt.Sprintf("GetItemByID: %v", id))
-	var item []entity.ScheduleItem
-	err := repo.db.Select(&item, `select name, description
+	var item entity.ScheduleItem
+	err := repo.db.Get(&item, `select name, description
  										from schedule_items
  										WHERE id = ? `, id)
 	if err != nil {
 		slog.Warn(err.Error())
 		return nil, err
 	}
-	return item, nil
+	return &item, nil
 }
 
+// GetItemByTime возвращает срез пар на день даты start
 func (repo *ScheduleItemRepo) GetItemByTime(start, end time.Time) ([]entity.ScheduleItem, error) {
 	slog.Debug("запрос в db GetItemByTime")
 	var items []entity.ScheduleItem
 	_ = end
+	fmt.Println(start)
 	day := start.Format("2006-01-02")
+	fmt.Println(day)
 	err := repo.db.Select(&items, `select id, name,description,start_date,end_date
 												from schedule_items
 												where substr(start_date,1,10) = ?
@@ -44,6 +50,50 @@ func (repo *ScheduleItemRepo) GetItemByTime(start, end time.Time) ([]entity.Sche
 	return items, nil
 }
 
+func (repo *ScheduleItemRepo) UpdateScheduleForTime(items []entity.ScheduleItem, start time.Time) error {
+	slog.Debug(fmt.Sprintf("UpdateScheduleForTime: %v", start))
+
+	tx, err := repo.db.Begin()
+	if err != nil {
+		slog.Error(fmt.Sprintf("UpdateScheduleForTime: %v", err))
+		return err
+	}
+	defer tx.Rollback()
+	_, err = tx.Exec(`delete from schedule_items
+									WHERE start_date >= ?`, start)
+	if err != nil {
+		slog.Error(fmt.Sprintf("UpdateScheduleForTime: %v", err))
+		tx.Rollback()
+		return err
+	}
+	stmt, err := tx.Prepare(`INSERT INTO schedule_items (name, description, start_date, end_date, external_id)
+									VALUES (?,?,?,?,?)
+									ON CONFLICT(name, start_date, end_date)
+									DO UPDATE SET
+  									description = excluded.description,
+  									external_id = excluded.external_id;`)
+	if err != nil {
+		slog.Error(fmt.Sprintf("ошибка подготовки запроса UpdateScheduleForTime: %v", err))
+		return err
+	}
+	defer stmt.Close()
+	for _, item := range items {
+		_, err = stmt.Exec(item.Name, item.Description, item.StartDate, item.EndDate, item.ExternalID)
+		if err != nil {
+			slog.Debug("ошибка при выполнении загрузки расписания UpdateScheduleForTime")
+			return err
+		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		slog.Debug(fmt.Sprintf("UpdateScheduleForTime: %v", err))
+		return err
+	}
+
+	return nil
+}
+
+/*
 func (repo *ScheduleItemRepo) GetDay() ([]entity.ScheduleItem, error) {
 	slog.Debug("запрос в DB GetDay")
 	var items []entity.ScheduleItem
@@ -62,6 +112,7 @@ func (repo *ScheduleItemRepo) GetDay() ([]entity.ScheduleItem, error) {
 	return items, nil
 }
 
+// Возвращает начало и конец дня
 func startEndOfToday() (time.Time, time.Time, error) {
 	slog.Debug("получение конца и начала дня startEndOfToday")
 	loc, err := time.LoadLocation("Europe/Moscow")
@@ -77,3 +128,4 @@ func startEndOfToday() (time.Time, time.Time, error) {
 
 	return start, end, nil
 }
+*/

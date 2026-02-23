@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	TGKey string `yaml:"tg_key"`
-	DBURL string `yaml:"db_url"`
+	TGKey        string `yaml:"tg_key"`
+	DBURL        string `yaml:"db_url"`
+	SchedulerURL string `yaml:"scheduler_url"`
 }
 
 func New() *Config {
