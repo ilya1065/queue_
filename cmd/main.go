@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		log.Println("No .env file found")
 	}
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug})).With("service", "my-service")
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})).With("service", "my-service")
 	slog.SetDefault(logger)
 	slog.Info("Начало работы")
 	cfg := config.New()
