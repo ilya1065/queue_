@@ -36,9 +36,7 @@ func (repo *ScheduleItemRepo) GetItemByTime(start, end time.Time) ([]entity.Sche
 	slog.Debug("запрос в db GetItemByTime")
 	var items []entity.ScheduleItem
 	_ = end
-	fmt.Println(start)
 	day := start.Format("2006-01-02")
-	fmt.Println(day)
 	err := repo.db.Select(&items, `select id, name,description,start_date,end_date
 												from schedule_items
 												where substr(start_date,1,10) = ?

@@ -1,18 +1,13 @@
 package server
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
 	"log/slog"
-	"net/http"
 	"queue/internal/config"
 	"queue/internal/entity"
+	"queue/internal/parser"
 	"queue/internal/repo"
-	"strings"
 	"time"
-
-	"github.com/apognu/gocal"
 )
 
 type Server struct {
@@ -80,63 +75,79 @@ func (s *Server) GetItemByID(id int) (*entity.ScheduleItem, error) {
 }
 
 func (s *Server) UpdateScheduleForNextTwoWeeks() error {
-	slog.Debug("Запрос к api обновление расписания")
-	type Response struct {
-		PageProps struct {
-			ScheduleLoadInfo []struct {
-				ID          int    `json:"id"`
-				Title       string `json:"title"`
-				ICalContent string `json:"iCalContent"`
-				ICalLink    string `json:"iCalLink"`
-			} `json:"scheduleLoadInfo"`
-		} `json:"pageProps"`
-	}
 	start := timeOfTwoWeekNext()
 	end := start.AddDate(1, 0, 0)
-	resp, err := http.Get(s.cfg.SchedulerURL)
+	items, err := parser.ICSURL(start, end, s.cfg.SchedulerURL)
 	if err != nil {
 		slog.Warn(err.Error())
 		return errors.New("ошибка выполнения запроса к API")
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return errors.New(resp.Status)
-	}
-	var body Response
-	err = json.NewDecoder(resp.Body).Decode(&body)
-	if err != nil {
-		slog.Warn(err.Error())
-		return errors.New("ошибка при декодирование данных")
-	}
-	if len(body.PageProps.ScheduleLoadInfo) == 0 {
-		return errors.New("ошибка получения расписания")
-	}
-	r := strings.NewReader(body.PageProps.ScheduleLoadInfo[0].ICalContent)
-	c := gocal.NewParser(r)
-	c.Start = &start
-	c.End = &end
-	err = c.Parse()
-	if err != nil {
-		slog.Warn(err.Error())
-		return errors.New("ошибка парсинга расписания")
-	}
-	var items []entity.ScheduleItem
-	for _, item := range c.Events {
-		items = append(items, entity.ScheduleItem{
-			Name:        item.Summary,
-			Description: item.Description,
-			StartDate:   item.Start,
-			EndDate:     item.End,
-			ExternalID:  item.Uid,
-		})
-	}
 	err = s.store.ScheduleItem().UpdateScheduleForTime(items, start)
 	if err != nil {
 		slog.Warn(err.Error())
-		return errors.New(fmt.Sprintf("Ошибка: %v", err))
+		return err
 	}
 	return nil
 }
+
+//func (s *Server) UpdateScheduleForNextTwoWeeks() error {
+//	slog.Debug("Запрос к api обновление расписания")
+//	type Response struct {
+//		PageProps struct {
+//			ScheduleLoadInfo []struct {
+//				ID          int    `json:"id"`
+//				Title       string `json:"title"`
+//				ICalContent string `json:"iCalContent"`
+//				ICalLink    string `json:"iCalLink"`
+//			} `json:"scheduleLoadInfo"`
+//		} `json:"pageProps"`
+//	}
+//	start := timeOfTwoWeekNext()
+//	end := start.AddDate(1, 0, 0)
+//	resp, err := http.Get(s.cfg.SchedulerURL)
+//	if err != nil {
+//		slog.Warn(err.Error())
+//		return errors.New("ошибка выполнения запроса к API")
+//	}
+//	defer resp.Body.Close()
+//	if resp.StatusCode != http.StatusOK {
+//		return errors.New(resp.Status)
+//	}
+//	var body Response
+//	err = json.NewDecoder(resp.Body).Decode(&body)
+//	if err != nil {
+//		slog.Warn(err.Error())
+//		return errors.New("ошибка при декодирование данных")
+//	}
+//	if len(body.PageProps.ScheduleLoadInfo) == 0 {
+//		return errors.New("ошибка получения расписания")
+//	}
+//	r := strings.NewReader(body.PageProps.ScheduleLoadInfo[0].ICalContent)
+//	c := gocal.NewParser(r)
+//	c.Start = &start
+//	c.End = &end
+//	err = c.Parse()
+//	if err != nil {
+//		slog.Warn(err.Error())
+//		return errors.New("ошибка парсинга расписания")
+//	}
+//	var items []entity.ScheduleItem
+//	for _, item := range c.Events {
+//		items = append(items, entity.ScheduleItem{
+//			Name:        item.Summary,
+//			Description: item.Description,
+//			StartDate:   item.Start,
+//			EndDate:     item.End,
+//			ExternalID:  item.Uid,
+//		})
+//	}
+//	err = s.store.ScheduleItem().UpdateScheduleForTime(items, start)
+//	if err != nil {
+//		slog.Warn(err.Error())
+//		return errors.New(fmt.Sprintf("Ошибка: %v", err))
+//	}
+//	return nil
+//}
 
 func timeOfTwoWeekNext() time.Time {
 	t := time.Now()
