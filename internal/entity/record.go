@@ -7,6 +7,5 @@ type Record struct {
 	UserID         int `db:"user_id"`
 	ScheduleItemId int `db:"schedule_item_id"`
 	//Body           string    `db:"body"`
-	active    bool      `db:"active"`
 	CreatedAt time.Time `db:"created_at"`
 }

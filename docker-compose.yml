@@ -24,6 +24,9 @@ services:
         condition: service_completed_successfully
     environment:
       TG_KEY: ${TG_KEY}
+      TG_PROXY_ADDR: ${TG_PROXY_ADDR}
+      TG_PROXY_USER: ${TG_PROXY_USER}
+      TG_PROXY_PASS: ${TG_PROXY_PASS}
       TZ: "Europe/Moscow"
     volumes:
       - queue_data:/app/data
