@@ -16,9 +16,9 @@ import (
 )
 
 func newTelegramHTTPClient() (*http.Client, error) {
-	proxyAddr := os.Getenv("TG_PROXY_ADDR") // 45.80.228.147:1080
-	proxyUser := os.Getenv("TG_PROXY_USER") // proxyuser
-	proxyPass := os.Getenv("TG_PROXY_PASS") // lusa
+	proxyAddr := os.Getenv("TG_PROXY_ADDR") 
+	proxyUser := os.Getenv("TG_PROXY_USER") 
+	proxyPass := os.Getenv("TG_PROXY_PASS") 
 
 	if proxyAddr == "" {
 		return &http.Client{Timeout: 30 * time.Second}, nil
